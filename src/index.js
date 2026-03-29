@@ -66,6 +66,7 @@ export default {
     const {
       title,
       description,
+      module_id: moduleId,
       module_code: moduleCode,
       module_name: moduleName,
       video_id: videoId,
@@ -87,6 +88,7 @@ export default {
 
     console.log("[webhook] payload_validated", {
       requestId,
+      moduleId: moduleId || "N/A",
       moduleCode: moduleCode || "N/A",
       moduleName: moduleName || "Unknown Module",
       isKuppi,
@@ -96,14 +98,16 @@ export default {
     // 10) Build subject/content using provided lecture/module metadata.
     const safeTitle = title || "New Learning Update";
     const safeModuleCode = moduleCode || "N/A";
+    const safeModuleId = moduleId ? String(moduleId).trim() : "";
     const safeModuleName = moduleName || "Unknown Module";
     const safeDescription = description || "A new notification is available.";
 
     const subject = isKuppi
-      ? `📢 New Kuppi Added | ${safeModuleCode}`
-      : `📘 New Update | ${safeModuleCode}`;
+      ? `New Kuppi Added | ${safeModuleName}`
+      : `New Kuppi Material Added | ${safeModuleName}`;
     const htmlContent = buildHtml({
       title: safeTitle,
+      moduleId: safeModuleId,
       moduleCode: safeModuleCode,
       moduleName: safeModuleName,
       description: safeDescription,
@@ -221,6 +225,7 @@ export default {
 
 function buildHtml({
   title,
+  moduleId,
   moduleCode,
   moduleName,
   description,
@@ -232,7 +237,7 @@ function buildHtml({
   const headerColor = isKuppi ? "#1e3a8a" : "#0f172a"; 
   const label = isKuppi ? "KUPPI" : "MODULE";
   const icon = isKuppi ? "🎓" : "📘";
-  const videoUrl = `https://kuppihub.org/video/${videoId}`;
+  const videoUrl = `https://kuppihub.org/video/${moduleId}`;
 
   return `<!DOCTYPE html>
 <html>
@@ -244,7 +249,7 @@ function buildHtml({
 <body style="margin:0; padding:0; background-color:#f3f4f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
 
     <div style="display:none !important; visibility:hidden; mso-hide:all; font-size:1px; color:#f3f4f6; line-height:1px; max-height:0px; max-width:0px; opacity:0; overflow:hidden;">
-        ${isKuppi ? "New Kuppi" : "New Module"}: ${title} for ${moduleName} (${moduleCode}). ${description}. Language: ${languageCode.toUpperCase()}.
+        ${title} for ${moduleName} (${moduleCode}). ${description}.
         &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
     </div>
 
@@ -253,7 +258,7 @@ function buildHtml({
         <tr>
             <td style="background-color:${headerColor}; padding:25px; text-align:center;">
                 <h1 style="color:#ffffff; margin:0; font-size:20px; letter-spacing:2px; font-weight: bold; text-transform: uppercase;">
-                    ${icon} ${label} HUB NOTIFICATION
+                    ${label} HUB NOTIFICATION
                 </h1>
             </td>
         </tr>
@@ -262,7 +267,7 @@ function buildHtml({
             <td style="padding:40px 30px;">
                 <p style="font-size:16px; color:#334155; line-height:1.6; margin-top:0;">Hello Student,</p>
                 <p style="font-size:16px; color:#334155; line-height:1.6;">
-                    A new <strong>${isKuppi ? "Kuppi Session" : "Academic Lesson"}</strong> has been added for <strong>${moduleName}</strong>. Please review the details below and watch the video to stay updated.
+                    A new <strong>${isKuppi ? "Kuppi Session" : "Academic Lesson"}</strong> has been added for <strong>${moduleName}</strong>. Make sure to check it out and continue your learning journey. Staying consistent will help you get the most out of your course!.
                 </p>
 
                 <div style="margin:30px 0; padding:20px; background-color:#f8fafc; border-left:4px solid ${headerColor}; border-radius:4px;">
@@ -288,7 +293,7 @@ function buildHtml({
                 </div>
 
                 <p style="font-size:14px; color:#64748b; margin-bottom:30px; font-style: italic;">
-                    <strong>Note:</strong> We recommend watching this as soon as possible to ensure you are prepared for your upcoming exams.
+                    <strong>⏳ Friendly reminder:</strong>  This might look optional now… until exam night when it suddenly becomes very important 👀.
                 </p>
 
                 <div style="text-align:center; margin-bottom: 10px;">
