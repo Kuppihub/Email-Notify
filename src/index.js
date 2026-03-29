@@ -133,7 +133,6 @@ export default {
     );
   },
 };
-
 function buildHtml({
   title,
   moduleCode,
@@ -143,23 +142,73 @@ function buildHtml({
   isKuppi,
   languageCode,
 }) {
+  // Dynamic settings based on content type
+  const headerColor = isKuppi ? "#1e3a8a" : "#0f172a"; // Blue for Kuppi, Dark for Module
+  const label = isKuppi ? "KUPPI" : "MODULE";
+  const icon = isKuppi ? "🎓" : "📘";
+  const videoUrl = `https://kuppihub.org/module-kuppi/${videoId}`;
+
   return `<!DOCTYPE html>
-<html lang="en">
-  <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-    <h2 style="margin-bottom: 8px;">${isKuppi ? "🎓 New Kuppi Added" : "📘 New Module Update"}</h2>
-    <p style="margin: 0 0 12px;">A new ${isKuppi ? "Kuppi" : "lesson update"} has been added for this module. Please go and watch it.</p>
-    <p style="margin: 0 0 12px;"><strong>Title:</strong> ${escapeHtml(title)}</p>
-    <p style="margin: 0 0 12px;"><strong>Module:</strong> ${escapeHtml(moduleName)} (${escapeHtml(moduleCode)})</p>
-    <p style="margin: 0 0 12px;"><strong>Description:</strong> ${escapeHtml(description)}</p>
-    <p style="margin: 0 0 12px;"><strong>Video ID:</strong> ${escapeHtml(String(videoId ?? "N/A"))}</p>
-    <p style="margin: 0 0 12px;"><strong>Language:</strong> ${escapeHtml(languageCode)}</p>
-    <p style="margin: 0 0 12px;"><strong>Kuppi Session:</strong> ${isKuppi ? "Yes" : "No"}</p>
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e5e7eb;" />
-    <p style="margin: 0; font-size: 12px; color: #6b7280;">This is an automated notification from KuppiHub.</p>
-  </body>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#f3f4f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px; margin:20px auto; background:#ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow:hidden;">
+        <tr>
+            <td style="background-color:${headerColor}; padding:25px; text-align:center;">
+                <h1 style="color:#ffffff; margin:0; font-size:20px; letter-spacing:2px; font-weight: bold;">
+                    ${icon} ${label}HUB NOTIFICATION
+                </h1>
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="padding:40px 30px;">
+                <p style="font-size:16px; color:#334155; line-height:1.6; margin-top:0;">Hello Student,</p>
+                <p style="font-size:16px; color:#334155; line-height:1.6;">
+                    A new <strong>${isKuppi ? "Kuppi Session" : "Academic Lesson"}</strong> has been released for your module. Please review the details below and watch the video to stay updated with your coursework.
+                </p>
+
+                <div style="margin:30px 0; padding:20px; background-color:#f8fafc; border-left:4px solid ${headerColor}; border-radius:4px;">
+                    <h3 style="margin:0 0 15px 0; color:${headerColor}; font-size:18px;">${isKuppi ? "Session" : "Update"} Highlights:</h3>
+                    <table width="100%" style="font-size:15px; color:#475569; line-height:1.8;">
+                        <tr><td style="width:100px; font-weight:bold;">Title:</td><td>${title}</td></tr>
+                        <tr><td style="font-weight:bold;">Module:</td><td>${moduleName} (${moduleCode})</td></tr>
+                        <tr><td style="font-weight:bold;">Language:</td><td>${languageCode.toUpperCase()}</td></tr>
+                        <tr><td style="font-weight:bold;">Description:</td><td>${description}</td></tr>
+                    </table>
+                </div>
+
+                <p style="font-size:14px; color:#64748b; margin-bottom:30px; font-style: italic;">
+                    <strong>Note:</strong> We recommend watching this as soon as possible to ensure you are prepared for your upcoming assessments.
+                </p>
+
+                <div style="text-align:center; margin-bottom: 10px;">
+                    <a href="${videoUrl}" style="background-color:#2563eb; color:#ffffff; padding:16px 40px; text-decoration:none; border-radius:6px; font-weight:bold; display:inline-block; font-size:16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);">
+                        ▶ Watch Video Now
+                    </a>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="background-color:#f9fafb; padding:25px; text-align:center; border-top: 1px solid #e5e7eb;">
+                <p style="margin:0; font-size:12px; color:#94a3b8; line-height: 1.5;">
+                    This is an automated notification from <strong>KuppiHub</strong>.<br>
+                    You are receiving this because you are enrolled in ${moduleCode}.
+                </p>
+                <div style="margin-top:15px; font-size:12px;">
+                    <a href="https://kuppihub.org/privacy" style="color:#2563eb; text-decoration:none;">Privacy Policy</a>
+                    <span style="color:#e2e8f0; margin:0 10px;">|</span>
+                    <a href="https://kuppihub.org/contact" style="color:#2563eb; text-decoration:none;">Support Center</a>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
 </html>`;
 }
-
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
