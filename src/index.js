@@ -48,20 +48,17 @@ export default {
       module_name: moduleName,
       video_id: videoId,
       emails,
+      emails_list: emailsList,
       is_kuppi: isKuppiSnake,
     } = payload;
 
     const isKuppi = payload["is-kuppi"] ?? isKuppiSnake ?? false;
     const languageCode = payload["language_code"] ?? payload["language-code"] ?? "en";
 
-    // 9) Normalize, filter, and deduplicate email addresses before sending.
-    const recipients = Array.isArray(emails)
-      ? [...new Set(emails.map((email) => String(email).trim().toLowerCase()))]
-      : [];
+    // 9) Normalize recipients from both emails_list (preferred) and emails (fallback).
+    const normalizedRecipients = normalizeRecipients({ emailsList, emails });
 
-    const validRecipients = recipients.filter(isValidEmail);
-
-    if (validRecipients.length === 0) {
+    if (normalizedRecipients.length === 0) {
       return jsonResponse({ error: "No valid email recipients found." }, 400);
     }
 
@@ -71,7 +68,9 @@ export default {
     const safeModuleName = moduleName || "Unknown Module";
     const safeDescription = description || "A new notification is available.";
 
-    const subject = `📘 ${safeTitle} | ${safeModuleCode}`;
+    const subject = isKuppi
+      ? `📢 New Kuppi Added | ${safeModuleCode}`
+      : `📘 New Update | ${safeModuleCode}`;
     const htmlContent = buildHtml({
       title: safeTitle,
       moduleCode: safeModuleCode,
@@ -83,7 +82,10 @@ export default {
     });
 
     // 11) Map emails into Brevo recipient objects (name is optional).
-    const to = validRecipients.map((email) => ({ email }));
+    const to = normalizedRecipients.map((recipient) => ({
+      email: recipient.email,
+      ...(recipient.name ? { name: recipient.name } : {}),
+    }));
 
     const brevoPayload = {
       sender: {
@@ -123,8 +125,8 @@ export default {
     return jsonResponse(
       {
         ok: true,
-        sent_to: validRecipients.length,
-        recipients: validRecipients,
+        sent_to: normalizedRecipients.length,
+        recipients: normalizedRecipients.map((recipient) => recipient.email),
         brevo_response: safeJsonParse(brevoText),
       },
       200
@@ -144,7 +146,9 @@ function buildHtml({
   return `<!DOCTYPE html>
 <html lang="en">
   <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-    <h2 style="margin-bottom: 8px;">${escapeHtml(title)}</h2>
+    <h2 style="margin-bottom: 8px;">${isKuppi ? "🎓 New Kuppi Added" : "📘 New Module Update"}</h2>
+    <p style="margin: 0 0 12px;">A new ${isKuppi ? "Kuppi" : "lesson update"} has been added for this module. Please go and watch it.</p>
+    <p style="margin: 0 0 12px;"><strong>Title:</strong> ${escapeHtml(title)}</p>
     <p style="margin: 0 0 12px;"><strong>Module:</strong> ${escapeHtml(moduleName)} (${escapeHtml(moduleCode)})</p>
     <p style="margin: 0 0 12px;"><strong>Description:</strong> ${escapeHtml(description)}</p>
     <p style="margin: 0 0 12px;"><strong>Video ID:</strong> ${escapeHtml(String(videoId ?? "N/A"))}</p>
@@ -159,6 +163,40 @@ function buildHtml({
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+function normalizeRecipients({ emailsList, emails }) {
+  const recipientsByEmail = new Map();
+
+  if (Array.isArray(emailsList)) {
+    for (const entry of emailsList) {
+      const email = String(entry?.email ?? "").trim().toLowerCase();
+      const name = String(entry?.name ?? "").trim();
+
+      if (!isValidEmail(email)) {
+        continue;
+      }
+
+      recipientsByEmail.set(email, {
+        email,
+        ...(name ? { name } : {}),
+      });
+    }
+  }
+
+  if (Array.isArray(emails)) {
+    for (const value of emails) {
+      const email = String(value ?? "").trim().toLowerCase();
+
+      if (!isValidEmail(email) || recipientsByEmail.has(email)) {
+        continue;
+      }
+
+      recipientsByEmail.set(email, { email });
+    }
+  }
+
+  return [...recipientsByEmail.values()];
 }
 
 function escapeHtml(value) {
