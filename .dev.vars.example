@@ -1,0 +1,4 @@
+WEBHOOK_SECRET=change-me
+BREVO_API_KEY=your-brevo-api-key
+BREVO_SENDER_EMAIL=sender@example.com
+BREVO_SENDER_NAME=KuppiHub
