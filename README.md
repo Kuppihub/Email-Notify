@@ -5,8 +5,16 @@ This Worker receives webhook POST requests, validates a shared secret, reads `em
 ## 1) Install
 
 ```bash
-npm install
+npm install --include=optional --ignore-scripts
 ```
+
+Why this command:
+
+- `workerd` requires optional platform packages.
+- `wrangler` also pulls `sharp` as optional, and on Node 25 it may fail native build.
+- `--ignore-scripts` avoids the `sharp` build while keeping `workerd` binaries installed.
+
+Recommended runtime: Node 22 LTS.
 
 ## 2) Configure local env
 
