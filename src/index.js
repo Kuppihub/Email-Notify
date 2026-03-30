@@ -101,9 +101,10 @@ export default {
     const safeModuleId = moduleId ? String(moduleId).trim() : "";
     const safeModuleName = moduleName || "Unknown Module";
     const safeDescription = description || "A new notification is available.";
+    const safeVideoId = videoId ? String(videoId).trim() : "";
 
     const subject = isKuppi
-      ? `New Kuppi Added | ${safeModuleName}`
+      ? `New Kuppi Added | ${safeModuleName} (${safeVideoId})`
       : `New Kuppi Material Added | ${safeModuleName}`;
     const htmlContent = buildHtml({
       title: safeTitle,
