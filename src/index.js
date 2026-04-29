@@ -238,7 +238,7 @@ function buildHtml({
   const headerColor = isKuppi ? "#1e3a8a" : "#0f172a"; 
   const label = isKuppi ? "KUPPI" : "MODULE";
   const icon = isKuppi ? "🎓" : "📘";
-  const videoUrl = `https://kuppihub.org/video/${moduleId}`;
+  const videoUrl = `https://kuppihub.org/module-kuppi/${moduleId}`;
 
   return `<!DOCTYPE html>
 <html>
