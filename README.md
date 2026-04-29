@@ -1,4 +1,4 @@
-# Email Notify Worker (Cloudflare + Brevo)
+# Email Notify Worker (Cloudflare + Brevo) 
 
 This Worker receives webhook POST requests, validates a shared secret, reads `emails` from payload JSON, and sends notification emails using Brevo.
 
